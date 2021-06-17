@@ -1,16 +1,7 @@
-buildscript {
-    repositories {
-        jcenter()
-        maven { url "https://jitpack.io" }
-    }
-    dependencies {
-        classpath "com.github.Skytils:ForgeGradle:c0652e03dc:all"
-        classpath "com.github.Skytils:mixingradle:d75e32e743"
-    }
+plugins {
+    id "net.minecraftforge.gradle.forge" version "6f5327"
+    id "org.spongepowered.mixin" version "d5f9873d60"
 }
-
-apply plugin: "net.minecraftforge.gradle.forge"
-apply plugin: "org.spongepowered.mixin"
 
 version = "0.0.1"
 group = "mynameisjeff.templatemod"
@@ -27,17 +18,18 @@ minecraft {
     runDir = "run"
     mappings = "stable_22"
     makeObfSourceJar = false
-    clientJvmArgs += "-Dfml.coreMods.load=mynameisjeff.templatemod.tweaker.FMLLoadingPlugin"
+    clientRunArgs += "--tweakClass org.spongepowered.asm.launch.MixinTweaker"
     clientRunArgs += "--mixin mixins.templatemod.json"
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
     maven { url "https://repo.spongepowered.org/repository/maven-public/" }
 }
 
 configurations {
     packageLib
+    implementaton.extendsFrom(packageLib)
 }
 
 
@@ -67,7 +59,7 @@ dependencies {
         exclude module: 'commons-io'
         exclude module: 'gson'
     }
-    configurations.compile.extendsFrom(configurations.packageLib)
+    annotationProcessor("org.spongepowered:mixin:0.7.11-SNAPSHOT")
 }
 
 mixin {
@@ -79,7 +71,6 @@ jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     manifest.attributes(
-            "FMLCorePlugin": "mynameisjeff.templatemod.tweaker.FMLLoadingPlugin",
             "FMLCorePluginContainsFMLMod": true,
             "ForceLoadAsMod": true,
             "MixinConfigs": "mixins.templatemod.json",
@@ -113,5 +104,5 @@ processResources {
 }
 
 sourceSets {
-    main { output.resourcesDir = output.classesDir }
+    main { output.resourcesDir = java.outputDir }
 }
